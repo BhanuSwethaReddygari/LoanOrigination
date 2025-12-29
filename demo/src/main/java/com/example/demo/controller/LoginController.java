@@ -18,10 +18,7 @@ public class LoginController {
     @Autowired
     private LoginService loginService;
 
-//    @GetMapping("/home")
-//    public ModelAndView loginpageview() {
-//        return new ModelAndView("LoginPage");
-//    }
+
     @GetMapping("/home")
     public ModelAndView loginpageview() {
         ModelAndView mv = new ModelAndView("LoginPage");
@@ -36,8 +33,8 @@ public class LoginController {
 
     @PostMapping("/login")
     public ModelAndView login(@Valid @ModelAttribute("user") User user,
-                                   BindingResult result,
-                                   HttpSession session) {
+                              BindingResult result,
+                              HttpSession session) {
         ModelAndView mv = new ModelAndView();
 
         // 1. Validation Check
@@ -49,21 +46,21 @@ public class LoginController {
         }
 
         try {
-            // 2. Call Service ONCE
-            boolean isCorrect = loginService.authenticateUser(user);
+            // 1. authenticatedUser is the FULL object from the DB (with email!)
+            User authenticatedUser = loginService.authenticateUser(user);
 
-            if(isCorrect){
-                // 3. SAVE TO SESSION
-                session.setAttribute("loggedInUser", user);
+            if (authenticatedUser != null) {
+                // 2. Save the DB-fetched object to the session
+                session.setAttribute("loggedInUser", authenticatedUser);
 
-                // 4. Setup Success View
-                mv.setViewName("LoginSuccess"); // Fixed spelling from "Sucess"
-                mv.addObject("Name", user.getUserName());
-                mv.addObject("Role", user.getRole());
+                // 3. Setup Success View using the DB object
+                mv.setViewName("LoginSuccess");
+                mv.addObject("Name", authenticatedUser.getUserName());
+                mv.addObject("Role", authenticatedUser.getRole());
                 mv.setStatus(HttpStatus.OK);
             }
         } catch (RuntimeException e) {
-            // 5. Handle Authentication Failure (e.g., Wrong Password/Role)
+            // 4. Handle Authentication Failure
             mv.setViewName("LoginFailure");
             mv.addObject("message", e.getMessage());
             mv.setStatus(HttpStatus.UNAUTHORIZED);
@@ -71,6 +68,7 @@ public class LoginController {
 
         return mv;
     }
+
     @GetMapping("/logout")
     public ModelAndView logout(HttpServletRequest request) {
         // 1. Invalidate the session to clear all user data
@@ -84,6 +82,18 @@ public class LoginController {
         mv.addObject("message", "You have been logged out successfully.");
         return mv;
     }
+    @GetMapping("/dashboard")
+    public ModelAndView showDashboard(HttpSession session) {
+        User user = (User) session.getAttribute("loggedInUser");
+
+        if (user == null) {
+            return new ModelAndView("redirect:/api/home");
+        }
+
+        ModelAndView mv = new ModelAndView("Dashboard"); // Points to Dashboard.jsp
+        mv.addObject("user", user); // Pass the full object
+        return mv;
+    }
     @GetMapping("/profile")
     public ModelAndView getUserProfile(HttpSession session) {
         User user = (User) session.getAttribute("loggedInUser");
@@ -95,7 +105,10 @@ public class LoginController {
 
         ModelAndView mv = new ModelAndView("UserProfile"); // Points to UserProfile.jsp
         mv.addObject("user", user);
+        mv.addObject("loggedInUser", user);
         return mv;
     }
 
-    }
+
+
+}

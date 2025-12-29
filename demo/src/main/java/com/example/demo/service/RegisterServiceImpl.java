@@ -22,8 +22,8 @@ public class RegisterServiceImpl implements RegisterService{
     }
     @Override
     public boolean insertMultipleDB(List<User> user){
-         registerDAO.saveAll(user);
-         return true;
+        registerDAO.saveAll(user);
+        return true;
     }
     @Override
     public boolean validateUserUniqueness(String userName, String email) {
@@ -41,5 +41,3 @@ public class RegisterServiceImpl implements RegisterService{
         return registerDAO.existsByUserName(userName);
     }
 }
-
-

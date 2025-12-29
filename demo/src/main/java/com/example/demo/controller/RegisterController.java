@@ -26,6 +26,13 @@ public class RegisterController {
     @Autowired
     RegisterService registerService;
 
+    @GetMapping("/")
+    public String index(HttpSession session) {
+        return "index";
+
+    }
+
+
     @GetMapping("/User_register_form")
     public ModelAndView showUserRegisterForm() {
 
@@ -40,8 +47,8 @@ public class RegisterController {
 
     @PostMapping("/register_user")
     public ModelAndView registerUser(@Valid @ModelAttribute("user") User user,
-                                   BindingResult result,
-                                   RedirectAttributes redirectAttributes) {
+                                     BindingResult result,
+                                     RedirectAttributes redirectAttributes) {
         ModelAndView mav = new ModelAndView();
 
         // 1. Check for Validation Errors

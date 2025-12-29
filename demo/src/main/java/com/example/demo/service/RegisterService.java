@@ -13,3 +13,4 @@ public interface RegisterService {
     void saveUser(User user);
     boolean isUsernameTaken(String userName);
 }
+

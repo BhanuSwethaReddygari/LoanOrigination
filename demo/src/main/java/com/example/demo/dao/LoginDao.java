@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface LoginDao extends JpaRepository<User, Long> {
     // This finds a user by both fields and returns an Optional to handle nulls safely
     Optional<User> findByUserNameAndPasswordAndRole(String userName, String password, User.Role role);
+    User findByUserName(String userName);
 }

@@ -9,25 +9,27 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class LoginServiceImpl implements LoginService{
+public class LoginServiceImpl implements LoginService {
 
-@Autowired
-LoginDao loginDao;
+    @Autowired
+    LoginDao loginDao;
+
     @Override
-    public boolean authenticateUser(User user) {
-        // Corrected the method call syntax below
+    public User authenticateUser(User user) {
+        // 1. Query the DB for the user with all three credentials
         Optional<User> foundUser = loginDao.findByUserNameAndPasswordAndRole(
                 user.getUserName(),
                 user.getPassword(),
                 user.getRole()
         );
 
+        // 2. If found, return the full object (which includes the email)
         if (foundUser.isPresent()) {
-            System.out.println("Login Successful for: " + user.getUserName());
-            return true;
+            return foundUser.get();
         } else {
-            System.out.println("Invalid credentials for: " + user.getPassword());
-            throw new RuntimeException("Authentication Failed: User details not found in database.");
+            // 3. If not found, throw an error for the Controller to catch
+            throw new RuntimeException("Authentication Failed: Invalid credentials.");
         }
     }
+
 }
